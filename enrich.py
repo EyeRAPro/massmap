@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 import argparse
 import yaml
 import psycopg2
+import geoip2.database
 
 parser = argparse.ArgumentParser(description='Parses masscan output puts it in a database and enriches it with other data.')
 parser.add_argument('-path', default='data', 
@@ -12,7 +13,7 @@ args = parser.parse_args()
 path = args.path
 
 config = yaml.load(file("config.yaml"))
-
+reader = geoip2.database.Reader('data/GeoLite2-City.mmdb')
 for filename in os.listdir(path):
 	try:
 		f = gzip.open(os.path.join(path,filename), 'rb')
@@ -26,3 +27,5 @@ for filename in os.listdir(path):
 		details = host.getchildren()
 		print details[0].items()[1][1]
 		print details[1].getchildren()[0].items()[1][1]
+		response = reader.city(details[0].items()[1][1])
+		print response.city.name
