@@ -24,8 +24,12 @@ for filename in os.listdir(path):
 	f.close()
 	root = ET.fromstring(file_content)
 	for host in root.findall('host'):
+		print host.items()[0][1]
 		details = host.getchildren()
 		print details[0].items()[1][1]
 		print details[1].getchildren()[0].items()[1][1]
 		response = reader.city(details[0].items()[1][1])
+		print response.country.name
 		print response.city.name
+		print response.location.latitude
+		print response.location.longitude

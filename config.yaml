@@ -1,5 +1,5 @@
 db:
-	username: "changeme"
-	password: "changeme"
-	address: ""
-	port: ""
+  username: "changeme"
+  password: "changeme"
+  address: ""
+  port: ""

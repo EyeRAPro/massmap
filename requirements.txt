@@ -1,3 +1,4 @@
 flask
 psycopg2
 geoip2
+pyyaml
