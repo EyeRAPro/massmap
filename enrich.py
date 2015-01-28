@@ -5,6 +5,8 @@ import argparse
 import yaml
 import psycopg2
 import geoip2.database
+from datetime import datetime
+import time
 
 parser = argparse.ArgumentParser(description='Parses masscan output puts it in a database and enriches it with other data.')
 parser.add_argument('-path', default='data', 
@@ -12,6 +14,8 @@ parser.add_argument('-path', default='data',
 args = parser.parse_args()
 path = args.path
 
+conn = psycopg2.connect("dbname=massmap user=sam")
+cur = conn.cursor()
 config = yaml.load(file("config.yaml"))
 reader = geoip2.database.Reader('data/GeoLite2-City.mmdb')
 for filename in os.listdir(path):
@@ -24,12 +28,25 @@ for filename in os.listdir(path):
 	f.close()
 	root = ET.fromstring(file_content)
 	for host in root.findall('host'):
-		print host.items()[0][1]
+		timestamp = time.strftime("%a, %d %b %Y %H:%M:%S +0000",
+                    datetime.fromtimestamp(int(host.items()[0][1])).timetuple()
+                    )
 		details = host.getchildren()
-		print details[0].items()[1][1]
-		print details[1].getchildren()[0].items()[1][1]
+		ip_address = details[0].items()[1][1]
+		port = details[1].getchildren()[0].items()[1][1]
 		response = reader.city(details[0].items()[1][1])
-		print response.country.name
-		print response.city.name
-		print response.location.latitude
-		print response.location.longitude
+		country = response.country.name
+		city = response.city.name
+		latitude = response.location.latitude
+		longitude = response.location.longitude
+		cur.execute("INSERT INTO host (ip_address,latitude,longitude,city,country) VALUES (%s,%s,%s,%s,%s) RETURNING id;",(ip_address,latitude,longitude,city,country))
+		host_id = cur.fetchone()[0]
+		cur.execute("INSERT INTO port (port) VALUES (%s) RETURNING id;",(port,))
+		port_id = cur.fetchone()[0]
+		cur.execute("INSERT INTO host_port (host_id,port_id) VALUES (%s,%s)",(host_id,port_id))
+		cur.execute("INSERT INTO scan (time) VALUES (%s) RETURNING id;",(timestamp,))
+		scan_id = cur.fetchone()[0]
+		cur.execute("INSERT INTO scan_port (scan_id, port_id) VALUES (%s,%s)",(scan_id,port_id))
+conn.commit()
+cur.close()
+conn.close()
