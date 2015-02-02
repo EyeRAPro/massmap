@@ -7,6 +7,7 @@ import psycopg2
 import geoip2.database
 from datetime import datetime
 import time
+from ipwhois import IPWhois
 
 parser = argparse.ArgumentParser(description='Parses masscan output puts it in a database and enriches it with other data.')
 parser.add_argument('-path', default='data', 
