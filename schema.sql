@@ -8,7 +8,7 @@ CREATE TABLE host (
 	latitude REAL,
 	longitude REAL,
 	city VARCHAR(50),
-	country VARCHAR(20)
+	country VARCHAR(50)
 );
 
 CREATE TABLE port (

@@ -1,0 +1,50 @@
+<html>
+	<head>
+		 <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+		  <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+		  <style>
+		  	#map { height: 260px;width:500px; }
+		  </style>
+	</head>
+
+	<body>
+		 <div id="map"></div>
+		 <script>
+		 	function loadJSON(path, success, error)
+			{
+			    var xhr = new XMLHttpRequest();
+			    xhr.onreadystatechange = function()
+			    {
+			        if (xhr.readyState === XMLHttpRequest.DONE) {
+			            if (xhr.status === 200) {
+			                if (success)
+			                    success(JSON.parse(xhr.responseText));
+			            } else {
+			                if (error)
+			                    error(xhr);
+			            }
+			        }
+			    };
+			    xhr.open("GET", path, true);
+			    xhr.send();
+			}
+		 	var map = L.map('map').setView([51.505, -0.09], 1);
+		 	L.tileLayer('https://{s}.tiles.mapbox.com/v4/samdb.l4bld9i4/{z}/{x}/{y}.png?access_token=pk.eyJ1Ijoic2FtZGIiLCJhIjoiNHpLQzN6MCJ9.gwtGbtHfV64t3mv7QzFlPA').addTo(map);
+		 	var circle = L.circle([51.508, -0.11], 500, {
+			    color: 'red',
+			    fillColor: '#f03',
+			    fillOpacity: 0.5
+			}).addTo(map);
+			loadJSON('scans?ports=1124',
+         		function(data) { for(var i =0; i < data.length; i++){
+         						L.circle([data[i][2], data[i][3]], 500, {
+								    color: 'red',
+								    fillColor: '#f03',
+								    fillOpacity: 0.5
+								}).addTo(map);
+         			} console.log(data.length);	},
+         		function(xhr) { console.error(xhr); }
+			);
+		 </script>
+	</body>
+</html>

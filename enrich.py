@@ -18,7 +18,7 @@ path = args.path
 conn = psycopg2.connect("dbname=massmap user=sam")
 cur = conn.cursor()
 config = yaml.load(file("config.yaml"))
-reader = geoip2.database.Reader('data/GeoLite2-City.mmdb')
+reader = geoip2.database.Reader('ref-data/GeoLite2-City.mmdb')
 for filename in os.listdir(path):
 	try:
 		f = gzip.open(os.path.join(path,filename), 'rb')
