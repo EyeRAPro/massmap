@@ -32,22 +32,25 @@ for filename in os.listdir(path):
 		timestamp = time.strftime("%a, %d %b %Y %H:%M:%S +0000",
                     datetime.fromtimestamp(int(host.items()[0][1])).timetuple()
                     )
-		details = host.getchildren()
-		ip_address = details[0].items()[1][1]
-		port = details[1].getchildren()[0].items()[1][1]
-		response = reader.city(details[0].items()[1][1])
-		country = response.country.name
-		city = response.city.name
-		latitude = response.location.latitude
-		longitude = response.location.longitude
-		cur.execute("INSERT INTO host (ip_address,latitude,longitude,city,country) VALUES (%s,%s,%s,%s,%s) RETURNING id;",(ip_address,latitude,longitude,city,country))
-		host_id = cur.fetchone()[0]
-		cur.execute("INSERT INTO port (port) VALUES (%s) RETURNING id;",(port,))
-		port_id = cur.fetchone()[0]
-		cur.execute("INSERT INTO host_port (host_id,port_id) VALUES (%s,%s)",(host_id,port_id))
-		cur.execute("INSERT INTO scan (time) VALUES (%s) RETURNING id;",(timestamp,))
-		scan_id = cur.fetchone()[0]
-		cur.execute("INSERT INTO scan_port (scan_id, port_id) VALUES (%s,%s)",(scan_id,port_id))
+		try:
+			details = host.getchildren()
+			ip_address = details[0].items()[1][1]
+			port = details[1].getchildren()[0].items()[1][1]
+			response = reader.city(details[0].items()[1][1])
+			country = response.country.name
+			city = response.city.name
+			latitude = response.location.latitude
+			longitude = response.location.longitude
+			cur.execute("INSERT INTO host (ip_address,latitude,longitude,city,country) VALUES (%s,%s,%s,%s,%s) RETURNING id;",(ip_address,latitude,longitude,city,country))
+			host_id = cur.fetchone()[0]
+			cur.execute("INSERT INTO port (port) VALUES (%s) RETURNING id;",(port,))
+			port_id = cur.fetchone()[0]
+			cur.execute("INSERT INTO host_port (host_id,port_id) VALUES (%s,%s)",(host_id,port_id))
+			cur.execute("INSERT INTO scan (time) VALUES (%s) RETURNING id;",(timestamp,))
+			scan_id = cur.fetchone()[0]
+			cur.execute("INSERT INTO scan_port (scan_id, port_id) VALUES (%s,%s)",(scan_id,port_id))
+		except:
+			pass
 conn.commit()
 cur.close()
 conn.close()
